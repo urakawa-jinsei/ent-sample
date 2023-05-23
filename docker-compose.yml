@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  db:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    volumes:
+      - ./data:/var/lib/postgresql/data
+      - ./ssl:/ssl
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: pass
+      POSTGRES_USER: user
+      POSTGRES_DB: db
+      POSTGRES_SSL: 'on'
+      POSTGRES_SSL_CERT_FILE: /ssl/server.crt
+      POSTGRES_SSL_KEY_FILE: /ssl/server.key
+      POSTGRES_SSL_CA_FILE: ''
