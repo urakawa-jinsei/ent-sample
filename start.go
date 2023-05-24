@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"entdemo/ent"
+	"entdemo/ent/user"
 
 	_ "github.com/lib/pq"
 )
@@ -23,6 +24,21 @@ func CreateUser(ctx context.Context, client *ent.Client) (*ent.User, error) {
 	return u, nil
 }
 
+func QueryUser(ctx context.Context, client *ent.Client) ([]*ent.User, error) {
+	u, err := client.User.
+		Query().
+		Where(user.Name("a8m")).
+		// `Only` fails if no user found,
+		// or more than 1 user returned.
+		// Only(ctx)
+		All(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed querying user: %w", err)
+	}
+	log.Println("user returned: ", u)
+	return u, nil
+}
+
 func main() {
 	client, err := ent.Open("postgres", "host=localhost port=5432 user=user dbname=db password=pass")
 	if err != nil {
@@ -36,9 +52,14 @@ func main() {
 
 	// CreateUserを呼び出す
 	ctx := context.Background()
-	user, err := CreateUser(ctx, client)
+	// user, err := CreateUser(ctx, client)
+	// if err != nil {
+	// 	log.Fatalf("failed to create user: %v", err)
+	// }
+	// fmt.Println("User created:", user)
+	user, err := QueryUser(ctx, client)
 	if err != nil {
-		log.Fatalf("failed to create user: %v", err)
+		log.Fatalf("failed to query users: %v", err)
 	}
-	fmt.Println("User created:", user)
+	fmt.Println("User returned:", user)
 }
